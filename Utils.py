@@ -1,6 +1,6 @@
-import numpy as np
+import random
 
-def find_g(p: np.uint64):
+def get_g(p: int):
     phi = p - 1
     i = 2
     prime_divisors = set()
@@ -9,13 +9,14 @@ def find_g(p: np.uint64):
             prime_divisors.add(i)
             prime_divisors.add(phi // i)
         i += 1
-    g = 2
-    while g * g <= phi:
+    g = int(phi**0.5)
+    while g >= 2:
         if all(pow(g, phi // d, p) != 1 for d in prime_divisors):
             return g
+        g -= 1
     return None
 
-def ferma_prime_test(n: np.uint64, k=12):
+def ferma_prime_test(n: int, k=12):
     """
     Тест Ферма для проверки простоты числа.
     n - число для проверки
@@ -29,16 +30,18 @@ def ferma_prime_test(n: np.uint64, k=12):
         return False
 
     for _ in range(k):
-        a = np.random.randint(2, n - 2, dtype=np.uint64)
-        if np.power(a, n - 1, n) != 1:
+        a = random.randint(2, n - 2)
+        if pow(a, n - 1, n) != 1:
             return False
     return True
 
 def get_random_prime():
-    candidate = np.random.randint(2**32, 2**64-1, dtype=np.uint64)
+    candidate = random.randint(2**32, 2**48-1)
     while not ferma_prime_test(candidate):
-        candidate = np.random.randint(2**32, 2**64-1, dtype=np.uint64)
+        candidate = random.randint(2**32, 2**48-1)
 
     return candidate
 
-print(get_random_prime())
+p = get_random_prime()
+g = get_g(p)
+print(p, g)
