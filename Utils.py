@@ -50,11 +50,11 @@ def get_g(p: int) -> int:
             prime_divisors.add(phi // i)
         i += 1
 
-    g = phi_sqrt
-    while g >= 2:
+    g = 2
+    while g < phi_sqrt:
         if all(mod_pow(g, phi // d, p) != 1 for d in prime_divisors):
             return g
-        g -= 1
+        g += 1
 
     return None
 
@@ -79,18 +79,21 @@ def ferma_prime_test(n: int, k=12) -> bool:
     return True
 
 def get_random_prime() -> int:
-    candidate = random.randint(2**32, 2**48-1)
+    candidate = random.randint(2**16, 2**32-1)
     while not ferma_prime_test(candidate):
-        candidate = random.randint(2**32, 2**48-1)
+        candidate = random.randint(2**16, 2**32-1)
 
     return candidate
 
-p = get_random_prime()
-g = get_g(p)
-print(p, g)
-num = 2
-exp = 10
-p = 1000000
-res = mod_pow(num, exp, p)
-true_res = pow(num, exp, p)
-print(res, true_res)
+def string_to_binary(text):
+    return ''.join(bin(ord(i))[2:].zfill(8) for i in text)
+
+def binary_to_string(binary):
+    return ''.join(chr(int(binary[i:i + 8], 2)) for i in range(0, len(binary), 8))
+
+def string_to_int(text):
+    return int(string_to_binary(text), 2)
+
+def int_to_string(integer):
+    binary = bin(integer)[2:]
+    return binary_to_string(binary.zfill(len(binary) + len(binary) % 8))
