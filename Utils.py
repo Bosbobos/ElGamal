@@ -1,22 +1,64 @@
 import random
 
-def get_g(p: int):
+def euclidean_extended(a: int, b: int) -> \
+        (int, int, int, int, int):
+    x2, x1, y2, y1 = 1, 0, 0, 1
+    while b > 0:
+        q = a // b
+        r = a - q * b
+        x = x2 - q * x1
+        y = y2 - q * y1
+
+        a, b = b, r
+        x2, x1 = x1, x
+        y2, y1 = y1, y
+
+    return a, x2, y2
+
+def mod_inv(num: int, p: int) -> int:
+    d, x, y = euclidean_extended(p, num)
+
+    if d % p != 1:
+        raise Exception(f'{num}**-1 mod {p} does not exist')
+
+    return y % p
+
+def mod_pow(num: int, exp: int, p: int) -> int:
+    if exp == -1:
+        return mod_inv(num, p)
+    if exp == 0:
+        return 1
+
+    num, exp = num % p, exp % p
+    b = 1
+    k = reversed(bin(exp)[2:])
+    for x in k:
+        if x == '1':
+            b = (b % p * num % p) % p
+        num = num ** 2 % p
+
+    return b
+
+def get_g(p: int) -> int:
     phi = p - 1
+    phi_sqrt = int(phi**0.5)
     i = 2
     prime_divisors = set()
-    while i * i <= phi:
+    while i <= phi_sqrt:
         if phi % i == 0:
             prime_divisors.add(i)
             prime_divisors.add(phi // i)
         i += 1
-    g = int(phi**0.5)
+
+    g = phi_sqrt
     while g >= 2:
-        if all(pow(g, phi // d, p) != 1 for d in prime_divisors):
+        if all(mod_pow(g, phi // d, p) != 1 for d in prime_divisors):
             return g
         g -= 1
+
     return None
 
-def ferma_prime_test(n: int, k=12):
+def ferma_prime_test(n: int, k=12) -> bool:
     """
     Тест Ферма для проверки простоты числа.
     n - число для проверки
@@ -31,11 +73,12 @@ def ferma_prime_test(n: int, k=12):
 
     for _ in range(k):
         a = random.randint(2, n - 2)
-        if pow(a, n - 1, n) != 1:
+        if mod_pow(a, n - 1, n) != 1:
             return False
+
     return True
 
-def get_random_prime():
+def get_random_prime() -> int:
     candidate = random.randint(2**32, 2**48-1)
     while not ferma_prime_test(candidate):
         candidate = random.randint(2**32, 2**48-1)
@@ -45,3 +88,9 @@ def get_random_prime():
 p = get_random_prime()
 g = get_g(p)
 print(p, g)
+num = 2
+exp = 10
+p = 1000000
+res = mod_pow(num, exp, p)
+true_res = pow(num, exp, p)
+print(res, true_res)
