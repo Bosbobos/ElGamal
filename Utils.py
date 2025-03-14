@@ -79,9 +79,9 @@ def ferma_prime_test(n: int, k=12) -> bool:
     return True
 
 def get_random_prime() -> int:
-    candidate = random.randint(2**16, 2**32-1)
+    candidate = random.randint(2**32, 2**48-1)
     while not ferma_prime_test(candidate):
-        candidate = random.randint(2**16, 2**32-1)
+        candidate = random.randint(2**32, 2**48-1)
 
     return candidate
 
