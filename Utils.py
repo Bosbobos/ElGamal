@@ -79,9 +79,10 @@ def ferma_prime_test(n: int, k=12) -> bool:
     return True
 
 def get_random_prime() -> int:
-    candidate = random.randint(2**32, 2**48-1)
+    minc, maxc = 2**4, 2**8-1
+    candidate = random.randint(minc, maxc)
     while not ferma_prime_test(candidate):
-        candidate = random.randint(2**32, 2**48-1)
+        candidate = random.randint(minc, maxc)
 
     return candidate
 
@@ -97,3 +98,39 @@ def string_to_int(text):
 def int_to_string(integer):
     binary = bin(integer)[2:]
     return binary_to_string(binary.zfill(len(binary) + len(binary) % 8))
+
+def pollard_rho(g, p, delta):
+    s1 = p // 3
+    s2 = s1 * 2
+    x, a, b = [1], [0], [0]
+    for i in range(1, p):
+        if 0 <= x[i-1] < s1:
+            xi = x[i-1] * delta % p
+            ai = a[i-1]
+            bi = (b[i-1] + 1) % p
+        elif s1 <= x[i-1] < s2:
+            xi = mod_pow(x[i-1], 2, p)
+            ai = 2 * a[i-1] % p
+            bi = 2 * b[i-1] % p
+        else:
+            xi = x[i-1] * g
+            ai = (a[i-1] + 1) % p
+            bi = b[i-1]
+
+        x.append(xi)
+        a.append(ai)
+        b.append(bi)
+
+        if i % 2 == 0:
+            if x[i] == x[i//2]:
+                r = (b[i//2] - b[i]) % p
+                if r == 0:
+                    raise Exception('Algortihm failed')
+                x = mod_inv(r, p) * (a[i] - a[i//2]) % p
+
+                return x
+
+p = get_random_prime()
+g = get_g(p)
+delta = g ** 7 % p
+print(p, g, pollard_rho(g, p, delta))
