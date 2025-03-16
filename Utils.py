@@ -99,7 +99,7 @@ def int_to_string(integer):
     binary = bin(integer)[2:]
     return binary_to_string(binary.zfill(len(binary) + len(binary) % 8))
 
-def new_xab(x, a, b, g, delta):
+def new_xab(x, a, b, g, p, delta):
     if x % 3 == 0:
         xi = mod_pow(x, 2, p)
         ai = 2 * a % (p-1)
@@ -119,9 +119,9 @@ def pollard_rho(g, p, delta):
     x, a, b = 1, 0, 0
     X, A, B = x, a, b
     for i in range(1, p):
-        x, a, b = new_xab(x, a, b, g, delta)
-        X, A, B = new_xab(X, A, B, g, delta)
-        X, A, B = new_xab(X, A, B, g, delta)
+        x, a, b = new_xab(x, a, b, g, p, delta)
+        X, A, B = new_xab(X, A, B, g, p, delta)
+        X, A, B = new_xab(X, A, B, g, p, delta)
 
         if x == X:
             r = (B - b) % (p-1)
@@ -134,9 +134,3 @@ def pollard_rho(g, p, delta):
                 x0 = (x * ((a - A) // gcd)) % (p - 1)
                 solutions = [(x0 + k * ((p - 1) // gcd)) % (p - 1) for k in range(g)]
                 return sorted(solutions)
-
-
-p = get_random_prime()
-g = get_g(p)
-delta = (g ** 13) % p
-print(p, g, pollard_rho(g, p, delta))
