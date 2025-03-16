@@ -34,7 +34,7 @@ def input_p():
             key = u.get_random_prime()
             print(f'{messages[1]} {key}')
             return key
-        elif key > 100 and u.ferma_prime_test(key):
+        elif key > 255 and u.ferma_prime_test(key):
             return key
         else:
             print(messages[2])
