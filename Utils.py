@@ -79,7 +79,7 @@ def ferma_prime_test(n: int, k=12) -> bool:
     return True
 
 def get_random_prime() -> int:
-    minc, maxc = 2**4, 2**8-1
+    minc, maxc = 2**32, 2**48-1
     candidate = random.randint(minc, maxc)
     while not ferma_prime_test(candidate):
         candidate = random.randint(minc, maxc)
@@ -99,12 +99,12 @@ def int_to_string(integer):
     binary = bin(integer)[2:]
     return binary_to_string(binary.zfill(len(binary) + len(binary) % 8))
 
-def new_xab(x, a, b):
+def new_xab(x, a, b, g, delta):
     if x % 3 == 0:
         xi = mod_pow(x, 2, p)
         ai = 2 * a % (p-1)
         bi = 2 * b % (p-1)
-    elif x % 3 == 2:
+    elif x % 3 == 1:
         xi = (x * g) % p
         ai = (a + 1) % (p-1)
         bi = b
@@ -119,16 +119,24 @@ def pollard_rho(g, p, delta):
     x, a, b = 1, 0, 0
     X, A, B = x, a, b
     for i in range(1, p):
-        x, a, b = new_xab(x, a, b)
-        X, A, B = new_xab(X, A, B)
-        X, A, B = new_xab(X, A, B)
+        x, a, b = new_xab(x, a, b, g, delta)
+        X, A, B = new_xab(X, A, B, g, delta)
+        X, A, B = new_xab(X, A, B, g, delta)
 
         if x == X:
-            if a == A or b == B:
-                raise Exception('Algorithm did not succed')
-            return mod_inv(B - b, (p-1)) * (a - A) % (p-1)
+            r = (B - b) % (p-1)
+            if r == 0 or a == A:
+                raise Exception('No solution found')
+            gcd, x, y = euclidean_extended(r, p-1)
+            if gcd == 1:
+                return [(mod_inv(B - b, p-1) * (a - A)) % (p-1)]
+            else:
+                x0 = (x * ((a - A) // gcd)) % (p - 1)
+                solutions = [(x0 + k * ((p - 1) // gcd)) % (p - 1) for k in range(g)]
+                return sorted(solutions)
 
-p = 1019
-g = 2
-delta = (g ** 10) % p
+
+p = get_random_prime()
+g = get_g(p)
+delta = (g ** 13) % p
 print(p, g, pollard_rho(g, p, delta))
