@@ -3,11 +3,14 @@ import random
 from math import floor, ceil, log2
 
 class ElGamal:
-    def __init__(self, p, g):
+    def __init__(self, p, g, public_key=None, private_key=None):
         self.p = p
         self.g = g
-
-        self.__generate_keys()
+        if public_key is None and private_key is None:
+            self.__generate_keys()
+        else:
+            self.__public_key = public_key
+            self.__private_key = private_key
 
     def __generate_keys(self):
         x = random.randint(1, self.p - 1)
