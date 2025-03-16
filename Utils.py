@@ -42,6 +42,20 @@ def mod_pow(num: int, exp: int, p: int) -> int:
 def get_g(p: int) -> int:
     phi = p - 1
     phi_sqrt = int(phi**0.5)
+    prime_divisors = set()
+    for i in range(2, phi_sqrt + 1):
+        if phi % i == 0:
+            prime_divisors.add(i)
+            prime_divisors.add(phi // i)
+
+    for g in range(2, phi_sqrt + 2):
+        if all(mod_pow(g, phi // d, p) != 1 for d in prime_divisors):
+            return g
+
+#abcd
+def check_g(p: int, g: int) -> bool:
+    phi = p - 1
+    phi_sqrt = int(phi**0.5)
     i = 2
     prime_divisors = set()
     while i <= phi_sqrt:
@@ -50,13 +64,10 @@ def get_g(p: int) -> int:
             prime_divisors.add(phi // i)
         i += 1
 
-    g = 2
-    while g < phi_sqrt:
-        if all(mod_pow(g, phi // d, p) != 1 for d in prime_divisors):
-            return g
-        g += 1
+    if all(mod_pow(g, phi // d, p) != 1 for d in prime_divisors):
+        return True
 
-    return None
+    return False
 
 def ferma_prime_test(n: int, k=12) -> bool:
     """
@@ -132,5 +143,5 @@ def pollard_rho(g, p, delta):
                 return [(mod_inv(B - b, p-1) * (a - A)) % (p-1)]
             else:
                 x0 = (x * ((a - A) // gcd)) % (p - 1)
-                solutions = [(x0 + k * ((p - 1) // gcd)) % (p - 1) for k in range(g)]
+                solutions = [(x0 + k * ((p - 1) // gcd)) % (p - 1) for k in range(gcd)]
                 return sorted(solutions)

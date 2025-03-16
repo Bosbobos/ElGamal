@@ -18,5 +18,5 @@ class Cryptanalysis(ElGamal):
                 m = c2 * u.mod_inv(u.mod_pow(c1, possible_key, self.p), self.p) % self.p
                 bin_m = bin(m)[2:]
                 message += u.binary_to_string(bin_m.zfill(ceil(len(bin_m) / 8) * 8))
-            possible_messages.append(message)
+            possible_messages.append([possible_key, message])
         return possible_messages
